@@ -17,7 +17,39 @@ router.get('/login', function(req, res, next) {
 });
 
 router.post('/register', upload.single('profileimage'), function(req, res, next) {
-  console.log(req.body.name);
+  var name = req.body.name;
+  var email = req.body.email;
+  var username = req.body.username;
+  var password = req.body.password;
+  var password2 = req.body.password2;
+
+  if(req.file){
+    console.log('Uploading file...');
+    var profileimage = req.file.filename;
+  } else {
+    console.log('No file uploaded...');
+    var profileimafe = 'noimage.jpeg';
+  }
+
+  // form validation using express-validator
+  req.checkBody('name', 'Name field is required').notEmpty();
+  req.checkBody('email', 'Email field is required').notEmpty();
+  req.checkBody('email', 'Email is not valid').isEmail();
+  req.checkBody('username', 'Username field is required').notEmpty();
+  req.checkBody('password', 'Password field is required').notEmpty();
+  req.checkBody('password', 'Passwords do not match').equals(req.body.password);
+
+  // check for erros
+  var errors = req.validationErrors();
+
+  // if there are errors, we want to re-render the page
+  if(errors){
+    res.render('register', {
+      errors: errors
+    });
+  } else {
+    console.log('No errors');
+  }
 });
 
 module.exports = router;
